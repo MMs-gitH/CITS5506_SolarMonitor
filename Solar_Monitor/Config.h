@@ -10,8 +10,8 @@
 // =========================
 // Wi-Fi settings
 // =========================
-static const char* WIFI_SSID = "Wi-Fi Name";
-static const char* WIFI_PASSWORD = "password";
+static const char* WIFI_SSID = "Nimit";
+static const char* WIFI_PASSWORD = "nimit123";
 static const unsigned long WIFI_RECONNECT_INTERVAL_MS = 10000;
 
 // =========================
@@ -64,6 +64,11 @@ static const float INA219_MAX_EXPECTED_CURRENT_A = 8.0f;
 static const float POWER_CURRENT_DIRECTION = 1.0f;
 static const float POWER_CURRENT_CALIBRATION = 1.0f;
 static const float POWER_VOLTAGE_CALIBRATION = 1.0f;
+
+// Fallback voltage used when bus voltage reads near zero (e.g. panel in shade).
+// Set to the panel's rated open-circuit voltage.
+static const float PANEL_RATED_VOLTAGE_V = 6.0f;
+static const float PANEL_VOLTAGE_MIN_V = 0.5f;
 
 // Small-current noise threshold. A 5 mA dead zone prevents jitter around zero.
 static const float CURRENT_NOISE_FLOOR_A = 0.005f;
