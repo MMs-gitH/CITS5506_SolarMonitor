@@ -707,7 +707,7 @@ function getSunlightLabel(irradiance) {
   return 'Strong sunlight';
 }
 
-function getOutputRatioDisplay(value, irradiance) {
+function getEfficiencyRatioDisplay(value, irradiance) {
   const sunlight = Number(irradiance);
   if (Number.isFinite(sunlight) && sunlight <= 1) return 'Night mode';
   const ratio = Number(value);
@@ -932,7 +932,7 @@ function updateChart(rows) {
     .filter((r) => r.expected_power_mw !== null && r.expected_power_mw !== undefined)
     .map((r) => ({ x: toMs(r.created_at), y: Number(r.expected_power_mw) }));
   chart.data.datasets[2].data = readings
-    .map((r) => ({ x: toMs(r.created_at), y: Number(r.efficiency_percent) }))
+    .map((r) => ({ x: toMs(r.created_at), y: Math.min(100, Number(r.efficiency_percent)) }))
     .filter((p) => Number.isFinite(p.y));
   chart.update('none');
 
@@ -1177,7 +1177,7 @@ function updateConnection(row) {
 }
 
 function updateCards(row, bestPowerToday) {
-  const outputRatio = Number(row?.efficiency_percent);
+  const outputRatio = Math.min(100, Number(row?.efficiency_percent));
   const outputRatioValid = Number.isFinite(outputRatio);
   const noSunlight = Number.isFinite(Number(row?.irradiance_wm2)) && Number(row.irradiance_wm2) <= 1;
   const outputRatioText = noSunlight ? 'Night' : outputRatioValid ? formatNumber(outputRatio, 1) : 'No data';
@@ -1305,18 +1305,18 @@ function updateAnalysis(row) {
     setRiskState('neutral', 'No risk');
     setText(elements.analysisTitle, Number.isFinite(irradiance) && irradiance <= 1 ? 'Night mode' : 'Low irradiance');
     setText(elements.analysisDetail, Number.isFinite(irradiance) && irradiance <= 1 ? 'No sunlight at local time.' : 'Waiting for theoretical output data.');
-    setText(elements.analysisRatioDisplay, getOutputRatioDisplay(NaN, irradiance));
+    setText(elements.analysisRatioDisplay, getEfficiencyRatioDisplay(NaN, irradiance));
     setBarWidth(elements.actualFill, 0);
     setBarWidth(elements.expectedFill, 0);
     if (elements.alertBanner) elements.alertBanner.style.display = 'none';
     return;
   }
 
-  const ratioPercent = (actual / expected) * 100;
+  const ratioPercent = Math.min(100, (actual / expected) * 100);
   const maxForBars = Math.max(actual, expected, 1);
   setBarWidth(elements.actualFill, (actual / maxForBars) * 100);
   setBarWidth(elements.expectedFill, (expected / maxForBars) * 100);
-  setText(elements.analysisRatioDisplay, getOutputRatioDisplay(ratioPercent, irradiance));
+  setText(elements.analysisRatioDisplay, getEfficiencyRatioDisplay(ratioPercent, irradiance));
   const riskBand = getOutputRiskBand(ratioPercent);
   setRiskState(riskBand.level, riskBand.label);
   setText(elements.analysisTitle, riskBand.title);

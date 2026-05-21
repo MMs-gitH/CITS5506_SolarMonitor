@@ -163,14 +163,15 @@ void readPowerMonitor(PowerData &data) {
     current = 0.0f;
   }
 
+  // Use rated voltage as fallback when bus voltage reads near zero
+  // (e.g. panel in shade or VIN+ wiring issue).
+  float effectiveVoltage = (busVoltage >= PANEL_VOLTAGE_MIN_V) ? busVoltage : PANEL_RATED_VOLTAGE_V;
+
   data.meterOk = true;
   data.busVoltage = busVoltage;
   data.shuntVoltage = shuntVoltage;
   data.currentA = current;
-  data.powerW = busVoltage * current;
-
-  // Keep legacy names mapped to measured values so the rest of the firmware and
-  // dashboard code can continue to use the same fields.
-  data.estimatedVoltage = data.busVoltage;
+  data.powerW = effectiveVoltage * current;
+  data.estimatedVoltage = effectiveVoltage;
   data.estimatedPowerW = data.powerW;
 }
